@@ -13,7 +13,7 @@ public class RunLength {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 		String base = "bunny";
-		String filename="/Users/Dennis Sun/Desktop/Classes/590/" + base + ".450p.yuv";
+		String filename="/Users/dsun96/Desktop/Classes/590/" + base + ".450p.yuv";
 		File file = new File(filename);
 		int numFrames = 150;
 		int width = 800;
@@ -54,8 +54,8 @@ public class RunLength {
 			framesList.add(new int[width][height]);
 		}
 		
-		InputStream compressedFile = new FileInputStream(new File("/Users/Dennis Sun/Desktop/Classes/590/RL_compressed.dat"));
-		OutputStream decompressedFile = new FileOutputStream("/Users/Dennis Sun/Desktop/Classes/590/RL_decompressed.dat");
+		InputStream compressedFile = new FileInputStream(new File("/Users/dsun96/Desktop/Classes/590/RL_compressed.dat"));
+		OutputStream decompressedFile = new FileOutputStream("/Users/dsun96/Desktop/Classes/590/RL_decompressed.dat");
 		int z, runLength, value;
 		
 		for (int y=0; y<height; y++) {//decompressing
@@ -85,7 +85,7 @@ public class RunLength {
 	}
 	private static void compress(ArrayList<int[][]> frames) throws IOException {
 		
-		OutputStream compressedFile = new FileOutputStream(new File("/Users/Dennis Sun/Desktop/Classes/590/RL_compressed.dat"));
+		OutputStream compressedFile = new FileOutputStream(new File("/Users/dsun96/Desktop/Classes/590/RL_compressed.dat"));
 		
 		int numFrames = frames.size();
 		int width = frames.get(0).length;

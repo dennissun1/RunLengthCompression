@@ -15,7 +15,7 @@ public class SplitRunLength {
 
 	public static void main(String[] args) throws IOException, FileNotFoundException {
 		String base = "bunny";
-		String filename="/Users/Dennis Sun/Desktop/Classes/590/" + base + ".450p.yuv";
+		String filename="/Users/dsun96/Desktop/Classes/590/" + base + ".450p.yuv";
 		File file = new File(filename);
 		int numFrames = 150;
 		int width = 800;
@@ -42,9 +42,9 @@ public class SplitRunLength {
 		compress(framesList);
 		System.out.println("compressing done!");
 		
-		System.out.println("decompressing...");
-		decompress(numFrames, width, height);
-		System.out.println("all done!");
+//		System.out.println("decompressing...");
+//		decompress(numFrames, width, height);
+//		System.out.println("all done!");
 		
 	}
 	private static void decompress( int numFrames, int width, int height) throws IOException {
@@ -56,8 +56,8 @@ public class SplitRunLength {
 			framesList.add(new int[width][height]);
 		}
 		
-		InputStream compressedFile = new FileInputStream(new File("/Users/Dennis Sun/Desktop/Classes/590/RL_compressed.dat"));
-		OutputStream decompressedFile = new FileOutputStream("/Users/Dennis Sun/Desktop/Classes/590/RL_decompressed.dat");
+		InputStream compressedFile = new FileInputStream(new File("/Users/dsun96/Desktop/Classes/590/RL_compressed.dat"));
+		OutputStream decompressedFile = new FileOutputStream("/Users/dsun96/Desktop/Classes/590/RL_decompressed.dat");
 		int z, runLength, value;
 		
 		for (int y=0; y<height; y++) {//decompressing
@@ -89,42 +89,45 @@ public class SplitRunLength {
 		
 		//read/write diff from vanilla version-  in SplitRunLength, runlength comes first, then value(s)
 		
-		OutputStream compressedFile = new FileOutputStream(new File("/Users/Dennis Sun/Desktop/Classes/590/RL_compressed.dat"));
+		OutputStream compressedFile = new FileOutputStream(new File("/Users/dsun96/Desktop/Classes/590/RL_compressed.dat"));
 		
 		int numFrames = frames.size();
 		int width = frames.get(0).length;
 		int height = frames.get(0)[0].length;
-		int runLength = 1;//0-127 means nonmatching run, 128-255 means matching run
+		int runLength;//0-127 means nonmatching run, 128-255 means matching run
 		
 		
 		for (int y=0; y<height; y++) {
 			for (int x=0; x<width; x++) {
-				for(int z=0; z<numFrames; z++) {
-					
+				runLength=1;
+				for(int z=0; z<numFrames-1; z++) {
 					//this takes care of nonMatching runs
 					
 					if(frames.get(z)[x][y] != frames.get(z+1)[x][y]) {
 						//for loop finds out how long runlength will be
 						
-						for(int offset=0; offset<numFrames-z-2; offset++) {//-1 because z goes to 149, numFrames goes to 150, 
-							//additional -1 comes from the fact that there are 149 comparisons in 150 frames
+						for(int offset=0; offset<numFrames-z-1; offset++) {//-1 because z goes 0-> 149, numFrames goes to 1->150
 							if(frames.get(z+offset)[x][y] != frames.get(z+offset+1)[x][y]) {
 								if(offset == 127) {//this means there are 128 comparisons, aka runlength > 128
 									runLength=128;
 									break;
 								}
+								if(offset==numFrames-z-2) {//next iteration of for loop breaks out; this is pixel at z=149
+
+									runLength=offset+1;//+1 here because we do want the last pixel, since it is part of the nonmatching run
+								} 
 							}else {
-								runLength=offset;//not offset+1 because we don't want to include the pixel at z+offset
+								runLength=offset-1;//-1 because we don't want to include the pixel at z+offset
 													//because pixel at z+offset is part of the upcoming matching run
 								break;
 							}
 						}
 						
-						compressedFile.write(runLength-1);
+						compressedFile.write(runLength);
 						for(int i=0; i<runLength; i++) {
 							compressedFile.write(frames.get(z+i)[x][y]);
 						}
-						z=z+runLength-1;//-1 because outer for loop will increment z again to the correct value
+						z=z+runLength;
 					}
 					
 					//this takes care of Matching runs
@@ -132,20 +135,17 @@ public class SplitRunLength {
 					else if(frames.get(z)[x][y] == frames.get(z+1)[x][y]) {//this takes care of nonMatching runs
 						//for loop finds out how long runlength will be
 						
-						should this really be -2?
-						for(int offset=0; offset<numFrames-z-2; offset++) {//-1 because z goes to 149, numFrames goes to 150, 
-							//additional -1 comes from the fact that there are 149 comparisons in 150 frames
+						for(int offset=0; offset<numFrames-z-1; offset++) {//-1 because z goes 0-> 149, numFrames goes to 1->150
 							if(frames.get(z+offset)[x][y] == frames.get(z+offset+1)[x][y]) {
 								if(offset == 128) {//this means there are 129 comparisons, aka runlength > 129
 									runLength=129;
 									break;
 								}
-								if(offset==numFrames-z-1) {//next iteration of for loop breaks out; this is pixel at z=149
-									should this really be +2?
-									runLength=offset+2;//+2 because we want the last pixel
+								if(offset==numFrames-z-2) {//next iteration of for loop breaks out; this is pixel at z=149
+									runLength=offset+1;//+1 here because we do want the last pixel, since it is part of the matching run
 								}
 							}else {
-								runLength=offset+1;//this is +1 because in this case, we DO want to include the pixel at z+offset
+								runLength=offset;//not -1 because we DO want to include the pixel at z+offset
 								break;
 							}
 						}
@@ -153,7 +153,7 @@ public class SplitRunLength {
 						compressedFile.write(runLength+126);
 						compressedFile.write(frames.get(z)[x][y]);
 						
-						z=z+runLength-1;//-1 because outer for loop will increment z again to the correct value
+						z=z+runLength;//-1 because outer for loop will increment z again to the correct value
 					}
 					
 					
